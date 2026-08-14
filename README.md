@@ -1,84 +1,82 @@
-# Curso BacKend - 225h - Técnico em Desenvolvimento de Sistemas - SENAI
+# Curso BackEnd - 225h - Técnico em Desenvolvimento de Sistemas - SENAI
 
-prof Diogo TB
+Profº Diogo TB
 
 Escola SENAI Americana
 
-2 Semestre 2026
+2º Semestre 2026
 
-## Objetivo do Curso
+## Objetivos do Curso
 
-- Desenvolver Aplicações web Servr Side, utilizando a linguagem PHP;
-- Aplicar Sistaxe Nativa PHP (Vanilla);
+- Desenvolver Aplicações web Server Side, utilizando a linguagem PHP;
+- Aplicar Sisntaxe Nativa PHP (Vanilla);
 - Manipulação HTTP;
 - Persistência de Dados;
 - Segurança contra SQL Injection/CSRF;
 - Refatoração em POO (Programação Orientada ao Objeto);
 - Arquitetura MVC (Model, View, Controller);
-- Utilização do FrameWork Laravel;
+- Utilização do FrameWork Laravel; 
 
 obs: framework - um conjunto de bibliotecas que oferecem uma solução completa para o desenvolvimento de alguma coisa
 
 ## Cronograma do Semestre
 
-Carga Horária: 105h 1 Semestre e 120h 2 Semestre
+Carga Horária: 105h 1º Semestre e 120h 2º Semestre
 
-Duração: 20 semanas 1 semestre e 20 semanas 2 semestre
+Duração: 20 Semanas 1º Semestre e 20 Semanas 2º Semestre
 
 ---
 
 ### Semana 1: Introdução ao BackEnd e Configuração do Ambiente PHP
 
-### O que é Backend?
+#### O que é BackEnd?
 
-O back-end é a parte de uma aplicação que o usuário nao vê, mas que faz tudo funcionar por trás das telas.
+O back-end é a parte de uma aplicação que o usuário não vê, mas que faz tudo funcionar por trás das telas.
 
-O Back-End é a parte de um sistema que funciona nos servidores, sendo responsável por executar a lógica da aplicação, processar informações e armazenar dados.
+O Back-End é a parte de um sistema que funciona nos servidores, sendo responsável por executar a lógica da aplicação, processar informações e armazenar dados. 
 
-Além disso, o Back-end é responsável por atender ás solicitações do frontend.
+Além disso, o BackEnd é responsável por atender ás solicitações do Frontend.
 
-sobre o mercado atual: o cenário é bom, mas mais exigente do que era. Quem conhece só o básico enfrenta mais concorrência. Quem alia Backend sólido com IA aplicada, cloud e inglês está num patamar completamente diferente - vagas internacionais remotas são uma realidade pra esse perfil.
+**Sobre o mercado atual:** o cenário é bom, mas mais exigente do que era. Quem conhece só o básico enfrenta mais concorrência. Quem alia backend sólido com IA aplicada, cloud e inglês está num patamar completamente diferente — vagas internacionais remotas são uma realidade pra esse perfil.
 
 O Backend é formado pelo servidor, banco de dados, lógica de programação com APIs e linguagens de programação/frameworks. Esses componentes trabalham juntos para processar dados, armazenar informações e garantir o funcionamento da aplicação.
 
-# Para que serve
--Processar lógica de negócio: regras, cálculos, validações (ex: calcular frete, aplicar desconto, validar login)
+**Para que serve**
 
--Gerenciar banco de dados: salvar, buscar, atualizar e deletar informações
+- Processar lógica de negócio: regras, cálculos, validações (ex: calcular frete, aplicar desconto, validar login)
+- Gerenciar banco de dados: salvar, buscar, atualizar e deletar informações
+- Autenticação e autorização: controlar quem pode acessar o quê (login, senhas, permissões)
+- Fornecer APIs: criar "pontes" (endpoints) para o frontend ou outros sistemas consumirem dados
+- Integração com serviços externos: pagamentos, e-mails, notificações, APIs de terceiros
+- Segurança: proteger dados sensíveis, evitar ataques (SQL injection, XSS, etc.)
+- Escalabilidade e performance: garantir que o sistema aguente muitos usuários ao mesmo tempo.
 
--Autenticação e autorização: controlar quem pode acessar o quê (login, senhas, permissões)
 
--Fornecer APIs: criar "pontes" (endpoints) para o frontend ou outros sistemas consumirem dados
-
--Integração com serviços externos: pagamentos, e-mails, notificações, APIs de terceiros
-
--Segurança: proteger dados sensíveis, evitar ataques (SQL injection, XSS, etc.)
-
--Escalabilidade e performance: garantir que o sistema aguente muitos usuários ao mesmo tempo.
-
-# Principais Tecnologias Linguagens de programação:
+**Principais Tecnologias Linguagens de programação:** 
 Ferramentas usadas para escrever o código do servidor, como Python, Node.js (JavaScript), Java e PHP.APIs: Os "caminhos" que permitem que o que você vê no celular converse com o servidor.
 
-Fintechs e Bancos
-Segurança, transações, alta escala 
+**Areas de Atuação**
+- Fintechs e Bancos
+- Segurança, transações, alta escala 
+- E-commerce
+- Catálogo, pedidos, pagamentos
+- Healthtechs
+- Prontuários, telemedicina
+- SaaS / Startups
+- Backend é o coração do produto
+- Logística
+- Rastreio, rotas, tempo real
+- Educação
+- Plataformas, conteúdo, usuários
 
-E-commerce
-Catálogo, pedidos, pagamentos
+#### O Ciclo de Vida da Requisição HTTP
 
-Healthtechs
-Prontuários, telemedicina
+##### O que é HTTP?
 
-SaaS / Startups
-Backend é o coração do produto
+*HTTP*, Hypertext Transfer Protocol, é um protocolo de comunicação utilizado para transferência de informações na WWW (World wide Web) e em outros sistemas de redes.
 
-Logística
-Rastreio, rotas, tempo real Educação
+O HTTP é a base para que o cliente e um servidor web troquem informações. Ele permite a requisição e a resposta de recurso como, imagens, arquivos e textos.
 
-#### Oque é HTTP?
-
-*HTTP* hypertext transfer protocol, é um protocolo de comunicação utilizado para transferência de informações na www (World wide web) e em outros sistemas de redes.
-
-o HTTP é a base para que o cliente e um servidor web troquem informações. Ele permite a requisição e a respostas de recursos como, imagens, arquivos e textos.
 
 ```mermaid
 
@@ -123,7 +121,7 @@ O PHP de fato é yma das linguagens de programação mais populares da atualidad
 
 - Fazer o Download do PHP (php.net)
 - ZIP - NTS(Non Thread Safe) 8.5
-- Descompactar o Arquivo do PHP na pasta C: \src\php (Para Descompactar usar o 7Zip = Melhor) => nunca salvar arquivo ou programas na raiz do sistema(C:)
+- Descompactar o Arquivo do PHP na pasta C:\src\php (Para Descompactar usar o 7Zip = Melhor) => nunca salvar arquivo ou programas na raiz do sistema(C:)
 - Adicionar a Pasta do PHP(C:\src\php) as Variáveis de Ambiente do Sistema (PATH)
 - Verificar a Instalação rodando o comando *php --version*
 
@@ -138,21 +136,22 @@ O PHP de fato é yma das linguagens de programação mais populares da atualidad
         - PHP Debug => ajuda a encontrar erros de código
         - PHP Cs Fixer => formatação de códigos (Identação)
         - PHP Server => ajuda na criação de um servidor local para PHP
-    - Desabilitamos o PHP Nativo do VsCode ( @builtin PPHP)
+    - Desabilitamos o PHP Nativo do VsCode ( @builtin PHP)
 
 2. Hello World (muito importante)
 
-##### Estudo de Variáveis e Constantes em PHP
+### Semana 2 - Variáveis, Constantes e Operadores em PHP
+
+#### Estudo de Variáveis e Constantes em PHP
 
 Declarar variávies é alocar um espaço na memória que permite a inclusão e manipulação de dados. 
 
 **Variávies**
 
-- devem ser declaradas usando "$" antes do nome variável
-- são não tipadas ( não precisa declarar o tipo dela na criação) ,
-- podem ser String, Numéricas (interger e float), Booleanas e Nulas.
-Não permite declaração de Undefined
-- Usar o "declare(Strict_types=1); na primeira linha do arquivo; => blinda o sistema contra conflitos de tipos de variáveis
+- devem ser declaradas usando "$" antes do nome da variável
+- são não tipadas ( não precisa declarar o tipo dela na criação) , 
+- podem ser String, Numéricas ( interger e float), Booleanas  e Nulas. Não Permite declaração de Undefined
+- Usar o "declare(Strict_types=1);" na primeira linha do arquivo; => blinda o sistema contra conflitos de tipos de variáveis
 
 **Constantes**
 
@@ -160,7 +159,8 @@ Não permite declaração de Undefined
 - pode ser criada usando "const" ou "define"
 - não permite interpolação
 
-##### Estudos de Operadores
+
+#### Estudo de Operadores
 
 **Aritméticos**: São usados para realizar Cálculso
 
@@ -173,31 +173,118 @@ Não permite declaração de Undefined
 | % | Modulo(Resto) | 10%3 | 1 (10 div 3 da 3, sobra 1) |
 | ** | Expoente | 2**3 | 8(2 elevado a 3) |
 
-obs: O Operador % é o melhor amigo de um programador, permite ordenar listas e organizar fila e pilhas
+obs: O Operador % é o melhor amigo de um programador , permite ordenar listas e organizar fila e pilhas
 
-**Relacionais**: Permite o Relacionamento entre dois ou mais valores, o resultado de uma operação é sempre uma booleana (Verdadeiro ou Falso).
+**Relacionais**:  Permite o Relacionamento entre dois ou mais valores, o resultado de uma operação é sempre uma booleana (verdadeiro ou falso).
 
 | Operador | Significado | Exemplo | Resultado |
-| - | - | - | - |
+| - |  - | - | - |
 | > | Maior que | 18 > 18 | false |
 | >= | Maior ou igual a | 18 >= 18 | true |
 | < | Menor que | 10 < 20 | true |
 | <= | Menor ou igual a | 10 <=5 | false |
-| == | Comparação de valor | "10"==10 | true |
+| == | Comparação de Valor | "10"==10 |  true |
 | === | Comparação Estrita | "10"===10 | false |
 | != | Diferente | "10"!=10 | false |
-| !== | Estritamente Diferente | "10"!==10 | true |
+| !== | Estritamente Diferente | "10"!==10 | true | 
 
-**Lógicos**: permite a combinação entre sentenças.
 
-- Operador AND (E) => && : para o resultado ser verdadeiro, todas as combinações precisam ser verdadeiras
-   - true && true => true
-   - true && false => false
+**Lógicos**: Permite a Combinação entre sentenças. 
 
-   - Operador OR (OU) => || : para o resultado ser verdadeiro, Basta apenas uma condição ser verdadeira 
-   - false || true => true
+- Operador AND (E) => && : para o resultado ser verdadeiro, Todas as Combinações precisam ser verdadeira
+    - true && true => true
+    - true && false => false
+
+- Operador OR (OU) => || : para o resultado ser verdadeiro, Basta apenas uma condição ser verdadeira
+    - false || true => true
     - false || false => false
 
 - Operador NOT (Não) => ! : Inverte a lógica da Operação, 
     - !true => false
     - !false => true
+
+---
+
+### Semana 3 - Estrutura de Controle de Dados (Condicionais e Repetição)
+
+- **Conteudo**: Estrutura `if`,`else`,`elseif`, operadores ternarios, `match` => substituto do `switch/case`, loops `for`,`while`, `do-white` e `foreach`
+
+#### Estruturas de Controle da Dados Ajudam no Processo de Automatização em Programas e Sistemas
+
+##### Condicionais (IF, ELSE, ELSEIF)
+
+**Formas de Uso**
+
+- uso do `if` apenas:
+Exemplo: aplicar desconto de 10% em compras acima de 100 Reais;
+
+```mermaid
+
+graph LR
+
+A[Comando] --> {Condição} --> C[Ação]
+
+```
+
+```php
+
+if($valorCompra > 100){
+    $valorFinal = $valorCompra * 0.09;
+}
+
+```
+- Uso do `if`e do `else`
+Exemplo: Aplicar um desconto de 10% para compras acima de 100reais e 5% para as demais compras
+
+```mermaid
+
+graph LR
+
+    A[Comando] --> B{Condição}
+    B --> |true| C[Ação 1]
+    B --> |false| D[Ação 2]
+
+```
+
+```php
+
+if($valorCompra > 100){
+    $valorFinal = $valorCompra * 0.9;
+} else {
+    $valorFinal = $valorCompra * 0.95;
+}
+
+```
+
+- Uso `elseif` (If Encadeado) => estrutura usada para manipulaçao de dados em duas ou mais condicionais.
+Exemplo: Compras acima de R$200 tem 15% de desconto, compras acima de R$100 tem 10% de desconto e demais compras tem 5% de desconto
+
+```mermaid
+
+graph LR
+
+ A[Comando] --> B{Condição 1}
+    B --> |true| C[Ação 1]
+    B --> |false| D{Condição 2}
+    D --> |true| E[Ação 2]
+    D --> |false| F[Ação 3]
+
+```
+
+```php
+
+if($valorCompra > 200){
+    $valorFinal = $valorCompra * 0.85;
+} elseif ($valorCompra > 100) {
+    $valorFinal = $valorCombra * 0.9;
+} else {
+    $valorFinal = $valorCompra * 0.95;
+}
+
+```
+
+*obs*: sempre usar `elseif` para situaçoes que precisam de mais de uma condição, ou seja, fazer encadeamento das comdições 
+
+- Uso *ERRADO* do if
+
+```php
