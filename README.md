@@ -288,3 +288,72 @@ if($valorCompra > 200){
 - Uso *ERRADO* do if
 
 ```php
+
+if($valorCompra > 200) {
+    $valorFinal = $valorCompra * 0.85;
+}
+if($valorCompra > 100) {
+    $valorFinal = $valorCompra * 0.9;
+} else {
+    $valorFinal = $valorCompra * 0.95;
+}
+
+```
+
+##### Operadores Ternários
+
+Um atalho para a estrutura condicional `if/else, normalmente escrito em uma única linha de código.
+
+` condição ? verdadeira : falsa `
+
+Perfeito para decisões curtas de uma linha de comando
+
+Exemplo: Verificar se a pessoa é maior de idade (18);
+
+```php
+
+$idade = 20;
+//O formato é (condição) ? Verdadeiro : falso;
+
+$status = ($idade>=18) ? "Maior de Idade" : "Menor de Idade";
+$status2 = ($idade>=60) ? "Idoso" : ($idade>=18) ? "Adulto" : "Criança" ;
+
+echo $status //
+
+```
+##### Expressão Condicional `match` (PHP 8)
+
+No mercado atual de PHP, não se uma mais uma `Switch/Case` para chegar valores fixos, usa-se o `match`. Ele compara um valor e retoran diretamente o resultado caso atenda a condição.
+
+```mermaid
+
+graph TD
+A[valor] --> B{condicional}
+B --> C[Ação 1]
+B --> D[Ação 2]
+    B --> E[Ação 3]
+    B --> F[Ação 4]
+    B --> G[Ação ...]
+    B --> H[Ação default]
+
+```
+Exemplo: Selecionar o Dia da semana a partir de um Número 
+
+```php
+
+$diaSemanaUm = date("w"); // pega o dia da semana em formato numerico
+
+$nomeDiaSemana = match($diaSemanaUm) {
+    "0" => "Domingo",
+    "1" => "Segunda",
+    "2" => "Terça",
+    "3" => "Quarta",
+    "4" => "Quinta",
+    "5" => "Sexta",
+    "6" => "Sábado",
+    "default" => "Dia Inválido"
+};
+
+echo " Hoje é $nomeDiaSemana";
+
+```
