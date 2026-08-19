@@ -357,3 +357,174 @@ $nomeDiaSemana = match($diaSemanaUm) {
 echo " Hoje é $nomeDiaSemana";
 
 ```
+
+---
+
+##### Laços de Repetição 
+
+Um laço de repetiçao faz com que um bloco de código rode várias vezes até que uma condiçao mande parar.
+
+- O laço white (Enquanto)
+
+Ele verifica se a condição e verdadeira ANTES de entrar no laço. Ideal quando voce não sabe exatamente quantas vezes vai rodar o laço.
+
+```mermaid
+
+graph LR
+ A[Início: contador = 0] --> B{Verdade?}
+    B -- Sim --> C[Repete]
+    C --> D[executa código]
+    D --> B
+    B -- Não --> E[Fim do Laço]
+
+```
+Exemplo de Aplicação do While: jogo de Adivinhaçao de um nº secreto
+
+```php
+    
+$numeroSecreto = rand(1, 10);
+
+$tentativas = 0;
+
+$numero = 0;
+
+while(numeroEscolhido != $numeroSecreto) {
+    echo "tente novamente"
+    //vou Escolher outro Nº para adivinhar
+    nunmeroEscolhido = rand(1,10);
+tentativas++;
+}
+
+echo "Acertou Miseravi!!! o nº secreto é $numeroEscolhido";
+
+```
+
+
+- O laço `do-while` (Faça-Enquanto)
+
+Adiferença é que ele executa o bloco pelo menos uma vez, mesmo que a condição seja false desde o inicío, pois ele só pergunta no final.
+
+```mermaid
+
+Flowchart LR
+
+ A[Início: i=0] --> B{i<10?}
+    B --true--> C[Ação]
+    C --> D[i++]
+    D --> B
+    B --false--> E[Fim]
+
+
+```
+
+
+
+exemplo: jogo de Adivinhação de um Nº
+
+```php
+
+$numeroSecreto = rand(1,10);
+do{
+    $numeroEscolhido = rand(1,10);
+
+    if(numeroEscolhido == numeroSecreto){
+        echo "Parabéns, Acertou!!!";
+        break;
+    }
+    echo"Tente Novamente!!";
+}while(numeroEscolhido != numeroSecreto);
+
+```
+
+#### O Freio de Emergencia: `break` e `continue`
+
+As vezes precisamos interferir no laço enquanto ele está rodando
+
+-`break`=>  **Para Tudo!** Quebra o laço interiro e avai embora
+- `continue` => **Pula a rodada!** Ele ignora o código daquela rodada especifica e pula logo par a próxima repetição.
+
+exemplo de Aplicação do Código: Sistema de Controle do Elevador
+
+```php
+
+for($andar = 1 ; $andar<=10; $andar++){
+    if($andar ==4){
+        echo "Andar $andar está em obras. Passando direto!";
+        continue;
+    }
+    echo "Elevador parou no andar $andar"
+
+}
+
+```
+---
+
+#### laço de Repetição `for`
+
+Use o `for` quando você sabe quantas vezes precisa repetir uma ação ou quando precisa controle um contador. Ele possui três partes:
+
+- inicialização,
+- condição,
+- incremento;
+
+for(inicialização; condição; incremento){}
+
+```mermaid
+
+flowchart LR
+A[Inicio: i=0] --> B{i<10?}
+B --true--> C[Ação]
+D -->D[i++]
+B --> B
+B --false--> E[Fim]
+
+```
+Exemplo: Exibir todos os meses do Ano
+
+```php 
+
+for($mes=1; $mes<=12; $mes++){
+    echo "mes $mes";
+
+
+}
+```
+
+nesse exemplo, `$mes` começa em 1, o laço continua enquantio `$mes` for menor ou igual a 12 e, ao final de cada repetição, `$mes++` aumenta o contador em 1.
+
+##### Laço de Repetição `foreach`
+
+Use o `foreach` quando precisar percorrer cada item de um **array*. Ele acessa os elementos diretamente, sem que você precise controlar o contador.
+
+Exemplo: Imprimir todos os items de um vetor
+
+```php
+
+$frutas = ["Maça", "Banana", "Uva", "Pera"];
+
+foreach($frutas as $fruta){
+    echo "Fruta: $fruta";
+}
+```
+
+Outro Exemplo: Acessar a chave e o valor de cada item:
+
+```php 
+
+$preco = [
+    "Caderno" => 25.90,
+"Caneta" => 5.50,
+    "Mochila" => 99.00
+]; // vetor chave => valor
+
+Foreach ($precos as $produto => $preco){
+    echo "$produto: R$ number_format($preço,2)";
+}
+```
+
+---
+---
+### Desafio : Simulador de Cobrança (FINANSENAI) 
+
+
+
