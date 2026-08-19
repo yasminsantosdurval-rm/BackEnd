@@ -1,27 +1,29 @@
 <?php
 
-$categoria = 'B';
-$divida = 1000;
-$dividaAtual = $divida;
+$categoriaCliente = "A";
+$saldoDevedor = 1000.00;
+$mesesAtraso = 12;
 
-$taxa = match ($categoria) {
-    'A' => 0.01,
-    'B' => 0.02,
-    'C' => 0.03,
-    default => 0.05,
+//Definir a Taxa de Juros de Acordo com a Classsificação do Cliente
+$txJuros = match ($categoriaCliente) {
+    "A" => 0.01 ,
+    "B" => 0.02 ,
+    "C" => 0.03 ,
+    default => 0.05
 };
 
-echo "Taxa: " . ($taxa * 100) . "%";
+//Demonstrar a Evolução da Divida ao Longo de 12 meses
 
-for ($mes = 1; $mes <= 12; $mes++) {
+for ($i=1; $i <= $mesesAtraso; $i++) { 
 
-    if ($mes == 6) {
-        echo "Mês 6: Isenção de juros (Anistia)";
+    //Regra Especial : Anistia no mês do juros 6
+    if($i===6){
         continue;
     }
+    $jurosMes = $saldoDevedor * $txJuros;
+    $saldoDevedor = $saldoDevedor + $jurosMes;
 
-    $juros = $dividaAtual * $taxa;
-    $dividaAtual = $dividaAtual + $juros;
+    
 
-    echo "Mês $mes: Juros R$ $juros | Saldo R$ $dividaAtual";
+    echo "\nValor ao final do mês $i " . number_format($saldoDevedor,2,",",".");
 }
