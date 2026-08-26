@@ -207,7 +207,7 @@ obs: O Operador % é o melhor amigo de um programador , permite ordenar listas e
 
 ### Semana 3 - Estrutura de Controle de Dados (Condicionais e Repetição)
 
-- **Conteúdo**: Estrutura `if`, `else`, `elseif`, operadores ternários, `match` => substituto do `switch/case`, loops `for`, `while`, `do-while` e `foreach`
+    - **Conteúdo**: Estrutura `if`, `else`, `elseif`, operadores ternários, `match` => substituto do `switch/case`, loops `for`, `while`, `do-while` e `foreach`
 
 #### Estruturas de Controle da Dados Ajudam no Processo de Automatização em Programas e Sistemas
 
