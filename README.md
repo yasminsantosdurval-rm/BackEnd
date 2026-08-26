@@ -207,7 +207,7 @@ obs: O Operador % é o melhor amigo de um programador , permite ordenar listas e
 
 ### Semana 3 - Estrutura de Controle de Dados (Condicionais e Repetição)
 
-- **Conteudo**: Estrutura `if`,`else`,`elseif`, operadores ternarios, `match` => substituto do `switch/case`, loops `for`,`while`, `do-white` e `foreach`
+- **Conteúdo**: Estrutura `if`, `else`, `elseif`, operadores ternários, `match` => substituto do `switch/case`, loops `for`, `while`, `do-while` e `foreach`
 
 #### Estruturas de Controle da Dados Ajudam no Processo de Automatização em Programas e Sistemas
 
@@ -222,18 +222,19 @@ Exemplo: aplicar desconto de 10% em compras acima de 100 Reais;
 
 graph LR
 
-A[Comando] --> {Condição} --> C[Ação]
+    A[Comando] --> B{Condição} --> C[Ação]
 
 ```
 
 ```php
 
 if($valorCompra > 100){
-    $valorFinal = $valorCompra * 0.09;
+    $valorFinal = $valorCompra * 0.9;
 }
 
 ```
-- Uso do `if`e do `else`
+
+- Uso do `if`e do  `else`
 Exemplo: Aplicar um desconto de 10% para compras acima de 100reais e 5% para as demais compras
 
 ```mermaid
@@ -256,14 +257,14 @@ if($valorCompra > 100){
 
 ```
 
-- Uso `elseif` (If Encadeado) => estrutura usada para manipulaçao de dados em duas ou mais condicionais.
-Exemplo: Compras acima de R$200 tem 15% de desconto, compras acima de R$100 tem 10% de desconto e demais compras tem 5% de desconto
+- Uso `elseif` (If Encadeado) => Estrutura usada para manipulação de dados em duas ou mais condicionais.
+Exemplo: Compras acima de 200 reais tem 15% de desconto, compras acima de 10 reais tem 10% de desconto e demais compras tem 5% desconto
 
 ```mermaid
 
 graph LR
 
- A[Comando] --> B{Condição 1}
+    A[Comando] --> B{Condição 1}
     B --> |true| C[Ação 1]
     B --> |false| D{Condição 2}
     D --> |true| E[Ação 2]
@@ -273,21 +274,21 @@ graph LR
 
 ```php
 
-if($valorCompra > 200){
+if($valorCompra > 200) {
     $valorFinal = $valorCompra * 0.85;
-} elseif ($valorCompra > 100) {
-    $valorFinal = $valorCombra * 0.9;
+} elseif($valorCompra > 100) {
+    $valorFinal = $valorCompra * 0.9;
 } else {
     $valorFinal = $valorCompra * 0.95;
 }
 
 ```
 
-*obs*: sempre usar `elseif` para situaçoes que precisam de mais de uma condição, ou seja, fazer encadeamento das comdições 
+*obs*: sempre usar `elseif` para situações que precisam de mais de uma condição, ou seja, fazer encadeamento das condições
 
 - Uso *ERRADO* do if
 
-```php
+```php 
 
 if($valorCompra > 200) {
     $valorFinal = $valorCompra * 0.85;
@@ -312,8 +313,8 @@ Exemplo: Verificar se a pessoa é maior de idade (18);
 
 ```php
 
-$idade = 20;
-//O formato é (condição) ? Verdadeiro : falso;
+$idade = 10;
+//O formato é (Condição) ? Verdadeiro : Falso;
 
 $status = ($idade>=18) ? "Maior de Idade" : "Menor de Idade";
 $status2 = ($idade>=60) ? "Idoso" : ($idade>=18) ? "Adulto" : "Criança" ;
@@ -321,6 +322,7 @@ $status2 = ($idade>=60) ? "Idoso" : ($idade>=18) ? "Adulto" : "Criança" ;
 echo $status //
 
 ```
+
 ##### Expressão Condicional `match` (PHP 8)
 
 No mercado atual de PHP, não se uma mais uma `Switch/Case` para chegar valores fixos, usa-se o `match`. Ele compara um valor e retoran diretamente o resultado caso atenda a condição.
@@ -328,22 +330,22 @@ No mercado atual de PHP, não se uma mais uma `Switch/Case` para chegar valores 
 ```mermaid
 
 graph TD
-A[valor] --> B{condicional}
-B --> C[Ação 1]
-B --> D[Ação 2]
+    A[Valor] --> B{Condicional}
+    B --> C[Ação 1]
+    B --> D[Ação 2]
     B --> E[Ação 3]
     B --> F[Ação 4]
     B --> G[Ação ...]
     B --> H[Ação default]
 
 ```
-Exemplo: Selecionar o Dia da semana a partir de um Número 
+Exemplo: Selecionar o Dia da Semana a partir de um Nº 
 
 ```php
 
-$diaSemanaUm = date("w"); // pega o dia da semana em formato numerico
+$diaSemanaNum = date("W"); // pega o Dia da Semana em formato numérico
 
-$nomeDiaSemana = match($diaSemanaUm) {
+$nomeDiaSemana = match($diaSemanaNu) {
     "0" => "Domingo",
     "1" => "Segunda",
     "2" => "Terça",
@@ -354,76 +356,74 @@ $nomeDiaSemana = match($diaSemanaUm) {
     "default" => "Dia Inválido"
 };
 
-echo " Hoje é $nomeDiaSemana";
+echo " Hoje é : $nomeDiaSemana";
 
 ```
 
 ---
 
-##### Laços de Repetição 
+##### Laços de Repetição
 
-Um laço de repetiçao faz com que um bloco de código rode várias vezes até que uma condiçao mande parar.
+Um laço de repetição faz com que um bloco de código rode várias vezes até que uma condição mande parar. 
 
-- O laço white (Enquanto)
+- O Laço `while` (Enquanto)
 
-Ele verifica se a condição e verdadeira ANTES de entrar no laço. Ideal quando voce não sabe exatamente quantas vezes vai rodar o laço.
+Ele verifica se a condição é verdadeira ANTES de entrar no laço. Ideal quando você não sabe exatamente quantas vezes vai rodar o laço. 
 
 ```mermaid
 
 graph LR
- A[Início: contador = 0] --> B{Verdade?}
+
+    A[Início: contador = 0] --> B{Verdade?}
     B -- Sim --> C[Repete]
     C --> D[executa código]
     D --> B
     B -- Não --> E[Fim do Laço]
 
 ```
-Exemplo de Aplicação do While: jogo de Adivinhaçao de um nº secreto
+
+Exemplo de Aplicação do While:  jogo de Adivinhação de um nº Secreto
 
 ```php
-    
-$numeroSecreto = rand(1, 10);
+
+$numeroSecreto = rand(1,10);
 
 $tentativas = 0;
 
-$numero = 0;
+$numeroEscolhido = 0;
 
-while(numeroEscolhido != $numeroSecreto) {
-    echo "tente novamente"
+while(numeroEscolhido != numeroSecreto){
+    echo "Tente Novamente"
     //vou Escolher outro Nº para adivinhar
-    nunmeroEscolhido = rand(1,10);
-tentativas++;
+    numeroEscolhido = rand(1,10);
+    tentativas++;
 }
 
 echo "Acertou Miseravi!!! o nº secreto é $numeroEscolhido";
 
 ```
 
+- O Laço `do-while` (Faça - Enquanto)
 
-- O laço `do-while` (Faça-Enquanto)
-
-Adiferença é que ele executa o bloco pelo menos uma vez, mesmo que a condição seja false desde o inicío, pois ele só pergunta no final.
+A diferença é que ele executa o bloco pelo menos uma vez, mesmo que a conduição seja false desde o início, pois ele só pergunta no final.
 
 ```mermaid
 
-Flowchart LR
+flowchart LR
 
- A[Início: i=0] --> B{i<10?}
-    B --true--> C[Ação]
-    C --> D[i++]
-    D --> B
-    B --false--> E[Fim]
-
+    A([Início]) --> B[Ação]
+    B --> C{Condição}
+    C --true--> B
+    C --false--> D([Fim])
 
 ```
 
-
-
-exemplo: jogo de Adivinhação de um Nº
+Exemplo: Jogo de Adivinhação de um nº
 
 ```php
 
 $numeroSecreto = rand(1,10);
+
 do{
     $numeroEscolhido = rand(1,10);
 
@@ -431,66 +431,67 @@ do{
         echo "Parabéns, Acertou!!!";
         break;
     }
-    echo"Tente Novamente!!";
-}while(numeroEscolhido != numeroSecreto);
+    echo "Tente Novamente!!!";
+
+} while(numeroEscolhido != numeroSecreto);
 
 ```
 
-#### O Freio de Emergencia: `break` e `continue`
+##### O Freio de Emergência: `break` e `continue`
 
-As vezes precisamos interferir no laço enquanto ele está rodando
+As vezes precisamoso interferir no laço enquanto ele está rodando 
 
--`break`=>  **Para Tudo!** Quebra o laço interiro e avai embora
+- `break`=> **Para Tudo!** Quebra o laço interiro e avai embora
 - `continue` => **Pula a rodada!** Ele ignora o código daquela rodada especifica e pula logo par a próxima repetição.
 
-exemplo de Aplicação do Código: Sistema de Controle do Elevador
+Exemplo de Aplicação do Código: Sistema de Controle do Elevador
 
-```php
+```php 
 
 for($andar = 1 ; $andar<=10; $andar++){
     if($andar ==4){
         echo "Andar $andar está em obras. Passando direto!";
         continue;
     }
-    echo "Elevador parou no andar $andar"
 
+    echo "Elevador parou no andar $andar"
 }
 
 ```
 ---
 
-#### laço de Repetição `for`
+##### Laço de Repetição `for`
 
-Use o `for` quando você sabe quantas vezes precisa repetir uma ação ou quando precisa controle um contador. Ele possui três partes:
+Use o `for`quando você sabe quantas vezes precisa repetir uma ação ou quando precisa controle um contador. Ele possui três partes:
 
 - inicialização,
 - condição,
 - incremento;
 
-for(inicialização; condição; incremento){}
+for(inicialização; condição; incremento){
+    Ação
+}
 
 ```mermaid
 
 flowchart LR
-A[Inicio: i=0] --> B{i<10?}
-B --true--> C[Ação]
-D -->D[i++]
-B --> B
-B --false--> E[Fim]
+    A[Início: i=0] --> B{i<10?}
+    B --true--> C[Ação]
+    C --> D[i++]
+    D --> B
+    B --false--> E[Fim]
 
 ```
+
 Exemplo: Exibir todos os meses do Ano
 
-```php 
-
+```php
 for($mes=1; $mes<=12; $mes++){
-    echo "mes $mes";
-
-
+    echo "Mês $mes";
 }
 ```
 
-nesse exemplo, `$mes` começa em 1, o laço continua enquantio `$mes` for menor ou igual a 12 e, ao final de cada repetição, `$mes++` aumenta o contador em 1.
+Nesse Exemplo, `$mes`começa em 1, o laço continua enquantio `$mes`for menor ou igual a 12 e, ao final de cada repetição, `$mes++`aumenta o contador em 1.
 
 ##### Laço de Repetição `foreach`
 
@@ -511,20 +512,209 @@ Outro Exemplo: Acessar a chave e o valor de cada item:
 
 ```php 
 
-$preco = [
+$precos = [
     "Caderno" => 25.90,
-"Caneta" => 5.50,
+    "Caneta" => 5.50,
     "Mochila" => 99.00
-]; // vetor chave => valor
+]; // vetor não ordenado chave => valor
 
-Foreach ($precos as $produto => $preco){
+foreach ($precos as $produto => $preco){
     echo "$produto: R$ number_format($preço,2)";
 }
 ```
 
 ---
 ---
-### Desafio : Simulador de Cobrança (FINANSENAI) 
+#### Desafio : Simuladro de Cobrança (FINANSENAI) 
+
+#### Desafio Final
+
+---
+---
+
+### Semana 4 - Modularização com Funções
+
+#### Principio do DRY ( `Don´t Repeat) Yourself`) 
+
+Se uma lógica foi escrita duas vezes ou mais dentro de um código, essa lógica deve virar uma função.
+
+#### Funções Nativas do PHP
+
+O PHPH tem milhares de funções prontas, essa funç~eos são chamadas de nativas. 
+
+- **O que é uma Função?**
+
+Uma função é como uma máquina: você coloca uma matéria-prima(Parâmetro), ela processa e devolve um produto final(Retorno)
+
+Exemplo de Função Nativa:
+
+```php 
+
+$texto = "senai americana";
+
+//str_replace(le abusca um pedaço do texto e substitui por outro)
+$textoNovo = str_replace("americana","são paulo",$texto);
+
+//strtoupper
+echo strtoupper($textoNovo); // SENAI SÃO PAULO
+
+```
+
+##### Principais Funções Nativas ( Mais Utilizadas )
+
+As funções abaixo já fazem parte do PHP e podem ser chamadas diretamente no código. Observe os parâmetros que cada uma recebe e o tipo de informação que ela retorna.
+
+| Função | Categoria | O que faz | Como usar |
+|---|---|---|---|
+| `strlen()` | Strings | Retorna a quantidade de caracteres de um texto. | `$tamanho = strlen($texto);` |
+| `strtoupper()` | Strings | Converte o texto para letras maiúsculas. | `$resultado = strtoupper($texto);` |
+| `strtolower()` | Strings | Converte o texto para letras minúsculas. | `$resultado = strtolower($texto);` |
+| `ucfirst()` | Strings | Converte a primeira letra do texto para maiúscula. | `$resultado = ucfirst($texto);` |
+| `trim()` | Strings | Remove espaços e quebras de linha no início e no fim do texto. | `$limpo = trim($texto);` |
+| `str_replace()` | Strings | Substitui uma parte do texto por outra. | `$novo = str_replace("-", "", $cpf);` |
+| `substr()` | Strings | Extrai uma parte do texto a partir de uma posição. | `$inicio = substr($texto, 0, 3);` |
+| `explode()` | Strings | Divide um texto e cria um array usando um separador. | `$palavras = explode(" ", $nome);` |
+| `implode()` | Arrays | Junta os itens de um array em um único texto. | `$lista = implode(", ", $nomes);` |
+| `count()` | Arrays | Conta a quantidade de itens de um array. | `$total = count($produtos);` |
+| `in_array()` | Arrays | Verifica se um valor existe dentro de um array. | `$existe = in_array("SP", $estados, true);` |
+| `array_push()` | Arrays | Adiciona um ou mais itens ao final de um array. | `array_push($nomes, "Ana");` |
+| `array_pop()` | Arrays | Remove e retorna o último item de um array. | `$ultimo = array_pop($nomes);` |
+| `sort()` | Arrays | Ordena um array em ordem crescente e reorganiza suas chaves. | `sort($notas);` |
+| `array_keys()` | Arrays | Retorna um array contendo as chaves de outro array. | `$chaves = array_keys($produtos);` |
+| `number_format()` | Números | Formata um número com casas decimais e separadores definidos. | `$preco = number_format($valor, 2, ',', '.');` |
+| `round()` | Números | Arredonda um número para a quantidade de casas informada. | `$media = round($nota, 2);` |
+| `max()` | Números | Retorna o maior valor de uma lista ou array. | `$maior = max($notas);` |
+| `min()` | Números | Retorna o menor valor de uma lista ou array. | `$menor = min($notas);` |
+| `is_numeric()` | Validação | Verifica se o valor é um número ou uma string numérica. | `if (is_numeric($entrada)) { ... }` |
+| `isset()` | Validação | Verifica se uma variável existe e não possui valor `null`. | `if (isset($usuario)) { ... }` |
+| `empty()` | Validação | Verifica se uma variável está vazia. | `if (empty($pedido)) { ... }` |
+| `date()` | Data e hora | Formata uma data ou hora conforme uma máscara. | `$hoje = date('d/m/Y');` |
+| `file_exists()` | Arquivos | Verifica se um arquivo ou diretório existe. | `if (file_exists('dados.txt')) { ... }` |
+| `file_get_contents()` | Arquivos | Lê todo o conteúdo de um arquivo ou endereço. | `$conteudo = file_get_contents('dados.txt');` |
+| `file_put_contents()` | Arquivos | Grava conteúdo em um arquivo, criando-o se necessário. | `file_put_contents('log.txt', $mensagem);` |
+
+**Atenção:** algumas funções modificam o array original, como `sort()`, `array_push()` e `array_pop()`. Já outras retornam um novo valor, como `count()`, `explode()` e `str_replace()`. Em caso de dúvida, consulte a documentação oficial do PHP e verifique o retorno da função.
 
 
+##### Documentação PHP
 
+[Acesse a documentação oficial do PHP em português](https://www.php.net/manual/pt_BR/)
+
+Consulte também a [referência de funções do PHP](https://www.php.net/manual/pt_BR/funcref.php) para pesquisar a sintaxe, os parâmetros eos valores por cada função.
+
+
+#### Funções Customizadas (Criando suas próprias máquinas)
+
+Quando o PHP não tem a função que queremos, nós a criamos!
+
+**A regra de Ouro:** Uma função deve focar em `return`(retornar um valor), e não imprimir (`echo`).
+
+Veja a diferença nesse exemplo:
+```php
+
+function calculatTotal($preco, $quantidade){
+    //a função calcula e retorna o resultado, mas não imprime nada
+    return $preco * $quantidade;
+}
+
+$total = calcularTotal(25.00, 3);
+
+echo "Total da compra: R$ " . number_format($total, 2 ",", ".");
+//total da compra: R$ 75,00
+
+```
+A função `calcularTotal()`pode ser reutilizada em uma página, relatório ou teste. O `echo`aparece somente fora da função, no momento de apresentar o resultado ao usuário
+
+#### Padrão de Uso Corporativo (PHP 8 Strict Types)
+
+No mercado de trabalho, exigimos que a função avise extamente o **TIPO** que ela vai devolver.
+
+Isso é chamado de **tipagem de funções**. Ao declarar os tipos, o código fica mais facíl de entender e o PHP consegue identificar alguns erros antes que eles causem problemas maiores no sistema.
+
+Os Tipos mais usados:
+
+* `int`: número inteiro, `10` ou `1024`.
+*`float`: número decimal ou ponto flutuante, `10.50`.
+*`string`: texto, como `"Maria"`
+*`bool`: valor lógico, `true` ou `false`.
+*`void`: identifica que a função não devolve nenhum valor
+
+o tipo deve ser escrito antes do nome de cada parâmetro e o tipo da função deve ser escrito após os parênteses, precedito po `:`, informando o que a função vai devolver.
+
+Exemplo de uso de função e parâmetros tipados:
+
+```php
+function apresentarProduto(string $nome, float $preco): string{
+    return "$nome cuta R$ $preco";
+}
+
+$mensagem = apresentaProduto("Caderno", 25.90);
+echo $mensagem;
+//Caderno custa R$ 25.90
+
+```
+
+> **Resumo**: os tipos dos parâmetros documentam as entradas da função, o tipo após `:` documenta a saída da função
+
+#### O tipo Mágico : `void`
+
+Se uma função faz um trabalho interno e **não retorna NADA**, dizemos que o retorno dela é "vazio" (`void`).
+
+Exeplo de função sem retorno:
+
+```php
+function registroLog(string $mensagem): void{
+    //apenas salvar em um arquivo de texto, não devolver nenhuma variável
+    file_put_contents("erro.log",$mensagem);
+}
+```
+
+##### Escopo e Referência (O segredo da memória)
+
+##### O que é Escopo? (A regra de las Vegas)
+
+*O que acontece dentro da função, fica dentro da função*. Uma variável criada fora  nã existe lá dentro, e uma criada lá dentro morre quando a função acaba.
+
+**Escopo** é o local do programa onde a variável pode ser armazenada/acessada. Em PHP, uma variável criada fora de uma função pertende ao **escopo global**. uma variável criada dentro de uma função pertence ao **escopo local**.
+
+Exemplo de Escopo de variável:
+
+```php
+$nomeSistema = "CRM Senai"; //Variável global
+
+function criarMensagem():string{
+    $mensagem = "Bem-Vindo!"; //Variável local
+    return $mensagem;
+}
+
+echo $nomeSistema;//Correto: esta no escopo global
+echo criarMensagem(); //Correto: a função devolve sua variável local.
+//echo $mensagem; // Incorreto: $mensagem só existe dentro da função, nao é acessada fora
+```
+* Como enviar dados para uma função?
+
+A forma mais segura e organizada é enviar os dados por **parâmetros**. Assim, a função não precisa acessar diretamento variáveis globais:
+
+```php
+function saudar(string $nome):string{
+    return "Olá, $nome!";
+}
+
+$nomeCliente = "João";
+echo saudar($nomeCliente); // Olá, João!
+```
+
+Nesse caso, `$nomeCliente` continua no escopo global, mas seu valor é enviado para o parâmetro local `$nome`. A função recebe uma informação, processa e retorna o resultado.
+
+Exemplo Incorreto:
+
+```php
+$nome = "João";
+function saudar():string{
+    return "Olá, $nome";
+}
+```
+
+A função `saudar()` não conhece a variavel global `$nome`
+
+>**Resumo:** variáveis protegem os dados internos da função; parâmetros são o caminho recomendado para evitar Erros e enviar informações, e `return` é usado para devolver um resultado ao código que chamou a função.
