@@ -830,5 +830,52 @@ Exibi com mais detalhes as informações de um array ou variavel em PHP
 echo var_dump($frutas);
 // Mostrar Tudo: tipo de dados, o tamanho e o valor
 ```
+---
 
+## Semana 6 - Proxwssamento HTTP e formularios web
+
+### Anatomia de um formulario HTML pars B\ckend
+
+Antes do PHP processsar qualquer infornação, precisamos coletar informações no FrontEnd atraves de um `<form>`
+
+**exemplo de `<form>` HTML**
+
+```html
+<form action="processar.php" method="POST">
+    <label>Nome Completo</label>
+    <input type:"text" id="campoNome" name="nomeUsuario" placeholder="Digite seu Nome">
+    <button type="submit">Cadastrar</button>
+</form>
+```
+
+**Os 3 pilares de um formulário**
+1. action="processa.php" -> O Destino : Define qual script PHP no servidor recebrá os dados
+2. method="POST" -> O Transporte: Define a via de protocolo HTTP que será usada (GET ou POST)
+3. name="nomeUsuario" -> A Etiqueta do Dado: É o nome da chave que o PHP usará no array associativo ($_POST["nomeUsuario"])
+
+> obs: Nunca comfundir `id` com `name` no input, o PHP ignora o `id`.
+
+## O Protocolo HTTP 
+
+uando o usuário clica no botão `type="submit"`, o navegador compila todas as informações dos campos preenchido e dispara um pacote de comunicação padronizado pelo **Protocolo HTTP(Hypertext Transfer Protocol)**.
+
+**Os Formatos de Transferência**
+
+* **Método GET**: solcitar informações públicas e realizr buscas, mas altamente arriscado para dados privados.
+* **Método POST**: As informações viajam guardadas dentro do protocolo. 
+
+#### Testar o uso dos Protocolos HTTP
+
+OK
+
+#### GET vs. POST
+
+1. O Método GET(Consultas e Filtros)
+
+O método `GET` é utilizado quando a intenção do cliente é **buscar ou filtrar dados** sem alterar o estado do servidor.
+Os dados enviados via `GET` são anexados diretamente ao final da URL na forma de uma **Query String**
+
+2. O método POST (Envio de Cargas Ùteis e Mutações)
+
+O método `POST` é utilizado quando o formulário envia dados que devem ser processados para **criar ou modificar registros** no sistema (EX: Cadastro de Ùsuarios, finalização de compra, upload de arquivos)
 
