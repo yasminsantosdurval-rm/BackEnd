@@ -1,0 +1,48 @@
+### 1. O que significa XSS?
+
+XSS significa **Cross-Site Scripting**. É quando alguém consegue colocar um código malicioso em uma página para o navegador executar. O Back-End deve impedir isso tratando os dados do usuário de forma segura.
+
+### 2. Reflected vs Stored
+
+**XSS Refletido:** o código malicioso é enviado e aparece na página na hora.
+
+**XSS Stored:** o código é salvo no sistema e pode aparecer para várias pessoas.
+
+O **Stored** pode causar mais problemas porque fica salvo e pode atingir vários usuários.
+
+### 3. O que o `htmlspecialchars()` faz?
+
+Ele transforma caracteres especiais em texto seguro.
+
+Por exemplo:
+
+`<` vira `&lt;`
+`>` vira `&gt;`
+
+Assim, o navegador mostra aquilo como texto e não executa como código HTML.
+
+### 4. Para que serve `ENT_QUOTES`?
+
+Ele faz o `htmlspecialchars()` proteger também as **aspas simples e duplas**.
+
+Isso é importante em campos como `<input value="">`, porque evita que o usuário consiga quebrar o atributo.
+
+### 5. Por que não usar `FILTER_SANITIZE_STRING`?
+
+Porque essa função foi **removida do PHP 8.3**. Hoje é melhor validar o tipo de dado e usar `htmlspecialchars()` para proteger a saída.
+
+### 6. `empty()` ou `FILTER_VALIDATE_EMAIL`?
+
+`empty()` só verifica se o campo está vazio.
+
+`FILTER_VALIDATE_EMAIL` verifica se o texto realmente tem formato de e-mail.
+
+### 7. Como o XSS pode roubar uma sessão?
+
+Se existir uma falha XSS, um código malicioso pode ser executado no navegador da pessoa. Dependendo da proteção do cookie, isso pode permitir acesso a informações da sessão.
+
+### 8. Por que sanitizar na entrada não é suficiente?
+
+Porque a sanitização e a proteção da saída são coisas diferentes.
+
+Mesmo limpando o dado quando ele entra, devemos usar `htmlspecialchars()` quando ele for mostrado no HTML.
