@@ -1114,4 +1114,343 @@ if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
     // IP válido
 }
 ```
- 
+
+---
+
+### Semana 8 - Persistência de Dados com Banco de Dados Relacionais (PostgreSQL) e Conexão PDO
+
+**Tema:** Camada de acesso a Dados, DriverPDO(PHP Data Objects), Driver `pdo_pgsql`, Padrão Singleton, Isolamento de Credenciais(`.env` `.ini`) e Tratamento de Exceções(`PDOException`)
+
+#### **1. Da Memória Volátil ao Banco de Dados**
+
+Em sistemas corporativos de grande porte, arquivos planos (`.txt` `.json`) não oferecem a segurança , integridade, concorrencia e velocidade necessária para armazenamentos de dados. Então é aqui que o **BackEnd** encontra o **Banco de Dados Relacional**.
+
+Banco de Dados Relacional Permite:
+- Conectar a lógica de programação server-side ao Sistema de Gerenciamento de Banco de Dados (SGBD).
+- Garantindo persistÊncia definitiva e segura dos registros.
+- Aplicando integridade referencial, constraints, consultas otimizadas e produtividade ACID aprendidas na disciplina de Banco de Dados.
+
+> obs: ACID:
+> Atomicidade, assegura que cada transação seja única.
+> Consistência, respeita todas as regras, restrições e chaves definidas, garantindo a validade da transação.
+> Isolamento, transações são realizadas de forma independente.
+> Durabilidade, transações são confirmadas, garantindo persistência permanente. 
+
+```mermaid
+flowchart LR
+    navegador[Navegador Web - Cliente/Front]
+    servidor[Servidor PHP - BackEnd - Regras de Negócio]
+    banco[SGBD - Base de Dados Persistentes]
+
+    navegador --> |"Requisição HTTP"| servidor
+    servidor --> |"Query - Driver PDO"| banco
+    banco --> |"Consult - Driver PDO"| servidor
+    servidor --> |"Resposta HTML/JSON"| navegador
+```
+
+#### **2. O que é o PDO(PHP Data Object)?**
+
+O **PDO** é uma camaada de abstração de acesso a dados integrada nativamente ao PHP. Ele fornece uma interface uniforme e orientada a objetos para se comunicar com múltiplos sistemas de banco de dados (PostgreSQL, MySQL, SQLite, OracleSQL, SQLServer).
+
+```mermaid
+flowchart TB
+    aplicacao[Aplicação PHP - Controlles, Service, Models]
+    pdo[Interface PDO - Métodos: query, prepare, execute]
+
+    driverpgsql[Driver PDO_PGSQL]
+    drivermysql[Driver PDO_MYSQL]
+    driveroci[Driver PPDO_ORACLESQL]
+
+    postgres[Banco PostgreSQL]
+    mysql[Banco MySQL]
+    oracle[Banco OracleSQL]
+
+    aplicacao --> pdo
+    pdo --> driverpgsql
+    pdo --> drivermysql
+    pdo --> driveroci
+    driverpgsql --> postgres
+    drivermysql --> mysql
+    driveroci --> oracle
+
+```
+
+#### **3. Vantagens do uso do PDO**
+
+- **Portabilidade de Código**: Os métodos de conexão, consulta e transções são identicos, independente do banco utilizado. Se o cliente migrar de banco Postgres para outrro SGBD(MySQL), o programador apenas altera a string DSN de conexão, preservando toda a lógica de acesso já utilizada ou criada.
+- **Suporte Nativo a Prepared Statement**: O PDO foi projetado para trabalhar com consultas nativas, oferencendo defesa contra ataques de **SQL_Injection**.
+- **Tratamento Orientado a Objetos com Exception**: Em vez de retronar códigos de erros, o PDO lanca uma instancia da classe especializada `PDOExcepton`.
+
+**A Sintaxe da Conexão PDO: DSN(Data Source Name)**
+
+Para que o PDO saiba onde o banco está localizado, em qual porta abrir, utilizamos a string padronizada **DSN**.
+
+```text
+pgsql:host=127.0.0.1;port=5432;dbname=seu_banco
+  |          |            |           |
+  |          |            |           └─ Nome da base de dados ralacional(nome do banco)
+  |          |            └─ Porta padrão do Banco de Dados PostgreSQL(5432)
+  |          └─ Endereço IP ou hostname do servidor
+  └─ Identificador do driver do SGBD(pgsql) - PostgreSQL
+```
+
+#### **4. A Configuração do PDO**
+
+Ao instanciar um objeto PDO, devemos configurar quadro flags essenciais que determinam como o driver de comportará frente a erro e consultas ao SGBD
+
+```php
+$opcoes = [
+    //1. flag: Lança exceções imediatamente quando ocorrer qualquer erro SQL
+    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+
+    //2. Retorna registros apenas com nomes das colunas (Eliminar duplicidade numérica)
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+
+    //3. Desatica emulação e utiliza prepared statements nativos 
+    PDO:: ATTR_EMULATE_PREPARES => false,
+
+    //4. Limita a 5 segundos para tentar a conexão com o servidor do BD
+    PDO:: ATTR_TIMEOUT => 5
+];
+```
+
+**Detalhamento das Flags**:
+
+- PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION : por padrão o PDO pode falhar silenciosamente e retorna apenas `false`. Ao Ativar o ERR_MODE força o PHP a dispara uma `PDOException`, permitindo que o nosso código interprete qualquer erro em um bloco `try-catch`.
+
+- PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC : por padrão o métos `fetch()`retrona um array duplicado ontendo índices numéricos`[0,1]`e associativos`["id","código_maquina"]`. Definir `FETCH_ASSOC`reduz o consumo de memória RAM pela metade e entrega coleções limpas.
+
+- PDO::ATTR_EMULATE_PREPARES => false : Garante que o PHP envie a consulta e os parâmetros separados diretamente para o planejador do BD processar, blindando e aplicação contra ataques sofisticados de `SQL_injection`
+
+
+#### **5. Proteção de Credenciais**
+
+Um dos erros mais graves cometidos por desenvolvedores iniciantes é escrever dados de conexão diretamente dentro do código:
+
+```php
+//péssima prática de código
+$pdo = new PDO("pgsql:host=localhost; dbname="producao"; "postgres"; "senha12345");
+//observer que as credenciasi estão expostas nos código
+```
+
+Se esse arquivo for versionado e enviado para GitHub:
+1. Suas senhas de produção ficam públicas
+2. Robôs maliciosos varrem repositórios à procura de credenciais expostas, para invadir banco de dados e sequestrar informações(ataque de Ransoware)
+3. A empresa é penalizada por violações da **LGPD(LEi Geral de Proteção de Dados)**
+
+**A Abordagem Segura: Usando Arquivos de Configuração Isolada (`.ini` `.env`)**
+
+Isolamos as credenciais em um arquivo externo protegido que **nunca entra no Git**
+
+```ini
+; config/database.ini
+[database]
+db_driver   = pgsql
+db_host     = 127.0.0.1
+db_port     = 5432
+db_name     = producao
+db_user     = postgres
+db_pass     = senha12345
+```
+
+Adiconameos o Arquivo Isolado ao `.gitignore`
+
+```text
+config/database.ini
+.env
+logs/*.log
+```
+
+---
+
+#### **6. Padrão Singleton de Conexão**
+
+Imagian uma aplicação web com 500 usuários acessando simultaneamente. Se cada script, função ou método executar `new PDO()`, ou seja, abrir uma nova conexão, sempre que precisar consultar o banco de dados, teremos milhares de conexão de redes abertas desnecessariamente.
+
+No SGBD(PostgreSQL), cada conexão aberta cria um processo no sistema operacional dedicado. Abrir conexões repetidas esgotam rapidamente o limite configurado (`max_connection`) do BD gerando um erro:
+`Fatal Error: sorrym, too many clients already`
+
+**Como o Singleton Resolve Isso**
+
+O pdrão **Singleton** garante que **apenas uma única instancia de conexão PDO exista por requisição**, reutilizando a conexão existente em qualquer ponto do sistema. 
+
+**As Configurações do Singleton**
+1. **Construtores Privados** (`private function _constructor`): Impede que outros arquivos instanciem uma nova conexão
+2. **Propriedade/Atributos Estáticas Privadas**: (`private static ?PDO $instancia = null`): Aramzena a Conexão aberta na Classe
+3. **Métodos de acesso Estáticos Públicos**: (`public static function obterConexao():PDO`): A Conexão é criada pelo método, garantindo acesso a conexão, mas não acesso aos atributos da conexão, se caso já existir uma conexão, apenas devolve a conexão existente para o operador, sem a necessidade de crir uma nova.
+4. **Bloqueio de Clonagem e Desserialização**: (`_clone` e `_wakeup`): Garantir que ninguém consiga duplicar o objeto da conexão.
+
+#### **7. Tratamento de Falhas com `PDOException`**
+
+Quando uma tentativa de conexão falha(servidor desligado, senha incorreta, porta inacessível ...), o PDO lança uma Exceção (`PDOException`). Então, devemos tratar essa falhas. 
+
+**Práticas recomendadas de segurança** (AppSec):
+
+* **Para o Usuário**: Exibir mensagens amigáveis e genéricas: *Não é possível processar sua solicitação. Tente novamente mais tarde*;
+* **Para a Equipe de Desenvolvimento**: Gravar os detalhes técnicos da falha com timestamp(carimbo de data e hora) em um arquivo de log seguro (`log/database.log`);
+
+---
+
+### Semana 9 - CRUD Completo com Prepared Statements e Proteção Contra SQL Injection
+
+**Tema:** Operações CRUD, Vulnerabilidade SQL Injection (OWASP Top 10), Consultas Preparadas com PDO (`prepare`, `bindValue`, `execute`), Marcadores Nomeados e Padrão de Arquiteutra DAO (DATA ACCESS OBJECT)
+
+Em qualquer organização , o objetivo central de um sistema de software é manipular informações com segurança, velocidade e consistência. Essa Manipulação se resuma a quatro operações fundamentis que todo desenvolvedor BackEnd deve dominar com perfeição, essa operações são conhecidas pelo acrônimo **CRUD**.
+
+```mermaid
+flowchart TB
+    subgraph CRUD ["As 4 Operações Fundamentais"]
+        C["<b>C</b>reate (Criar)"] --> |"Comando SQL"| SQL_I["INSERT INTO ..."]
+        R["<b>R</b>ead (Ler)"] --> |"Comando SQL"| SQL_S["SELECT ... FROM ..."]
+        U["<b>U</b>pdate (Atualizar)"] --> |"Comando SQL"| SQL_U["UPDATE ... WHERE ..."]
+        D["<b>D</b>elete (Excluir)"] --> |"Comando SQL"| SQL_D["DELETE FROM ... WHERE ..."]
+    end
+
+    style C fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+    style R fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
+    style U fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    style D fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+```
+
+Na Semana 08 , aprendemos a como conectar usando a extensão PDO e utilizando o padrão Singleton. Agora, vamos dar vidar a essa conexão: Aprenderemos a inserir novos registros, consultar com filtros dinâmicos e remover e atulizar dados com segurança.
+
+--- 
+
+#### **A Maior Ameaça da História da Web: SQL Injection (`SQLi`)**
+
+Antes de Escrevermos a primeira query de manipulação, precisamos compreender o perido que cerca o acesso a banco de dados.
+
+A vulnerabilidade **SQL Injection** que ocupa o topo das listas mais críticas de cibersegurança. Ela Ocorre quando um desenvolvedor comete um erro gravíssimo de **concatenar entradas fornecidas pelo usuário diretamente na instrução SQL**
+
+**Exemplo de Código Proibido (Concatenação de String)**
+
+Imagina um sistema que valida o login de um operador da seguinte forma:
+
+```php
+//Codigo Vulnerável e Perigoso - NUNCA FAÇA ISSO!
+$usuario = $_POST["usuario"];
+$senha = $_POST["senha"];
+// o invasor digita no campo usuário: admin' --
+
+$sql = "SELECT * FROM usuarios WHERE login = '".$usuario . "'AND senha= '" .$senha ."'";
+$resultado = $pdo->query($sql)
+```
+
+**O que acontece quando o atacante digita: `admin' --`?**
+
+A string final mpontada pelo PHP envia  seguinte mensagem para o banco
+
+```sql
+SELECT * FROM usuarios WHERE login = 'admin' --' AND senha= '...'
+```
+
+1. A aspa digita pelo atacante fecha a string do login antecipadamente
+2. O operador `--`no Banco de Dados indica o **início de um comentário** 
+3. O restante da query (a validação de senha) é ignorada pelo morto de busca do banco
+4. **Resultado:** o invasor faz login instantaneamente na conta do administrador sem precisar saber a senha. 
+
+**3 Cenários Mais utilizados de SQL Injection**
+
+| Tipo de Injeção | Payload Injetado pelo Invasor | Consequência no PostgreSQL |
+| :--- | :--- | :--- |
+| **Bypass de Autenticação** | `' OR '1'='1` | A condição torna-se sempre verdadeira, retornando o primeiro usuário da tabela (geralmente o administrador do sistema). |
+| **Exfiltração de Dados (UNION SQLi)** | `' UNION SELECT id, nome, senha FROM usuarios --` | O invasor anexa tabelas sigilosas inteiras no resultado da consulta visível na tela, violando a LGPD. |
+| **Destruição / Adulteração (Stack Queries)** | `'; DROP TABLE pecas_industriais; --` | Dependendo do driver e das permissões do usuário, o invasor encerra a consulta atual e executa comandos de destruição em massa. |
+
+
+#### **A Defesa Definitiva: PREPARED STATEMENTS**
+
+Usar consulta com Prepared Statements evita que ocorra SQL Injection
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant App as Aplicação PHP
+    participant SGBD as PostgreSQL
+
+    Note over App, SGBD: FLUXO SEGURO COM PREPARED STATEMENT
+    App->>SGBD: 1. PREPARE: "SELECT * FROM usuarios WHERE login = :user"
+    Note over SGBD: Compila a query, gera o plano de execução<br/>e define que :user É ESTRITAMENTE DADO!
+    SGBD-->>App: Query compilada pronta para receber parâmetros
+    App->>SGBD: 2. EXECUTE: [":user" => "admin' --"]
+    Note over SGBD: O Banco busca literalmente um usuário<br/>cujo nome seja "admin' --". Nenhuma tag vira código!
+    SGBD-->>App: Retorna registro ou vazio (Sem Invasão!)
+```
+
+**Por que a consulta preparada (`prepare`) é imune a injeções?**
+
+Quando utilizamos `$pdo->prepare()`, ocorre uma **separação física e temporal** entre o **comando SQL** e os **dados do usuário**:
+1. **Fase de Compilação(`prepare`)**: O BAnco recebe o molde da instrução com marcadores (`:parametros`). Ele analisa a sintaxe, otimiza o caminho de busca e compila o plano de execução. A estrutura lógica da consulta está **fechada e congelada**
+2. **Fase de Envio dos Dados (`execute`)**: O PHP envia apenas os valores literais. Memso que o invasor envie aspas, ponto-e-vírgula ou comandos `DROP`, o Banco tratará tudo exclusivamente como um texto inofensivo pertencente aquele campo.
+
+---
+
+#### Marcadores Nomeados e Posicionais no PDO
+
+O PDO aceita dois formatod de marcadores em prepared statements
+
+1. **Marcador Posicional (`?`):**
+
+```php 
+//Funcionam, mas é sujeito a erros de contagem de parâmetros em queries longas
+$sql = "INSERT INTO usuarios (id, nome, email, telefone) VALUES (?, ?, ?, ?)";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$id, $nome, $email, $telefone]);
+```
+2. **Marcadores Nomeados (`:nome`) - Padrão Recomendado**
+
+```php
+// Autenticação Autoexplicativa, altamente legível e a prova de inversão de ordem
+$sql = "INSERT INTO usuarios (id, nome, email, telefone) VALUE (:id, :nome, :email, :telefone)";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    ":id"       => $id,
+    ":nome"     => $nome,
+    ":email"    => $email,
+    ":telefone  => $telefone
+]);
+```
+
+#### **Método de Vinculação de Valores: `bindValue()` Vs. `bindParam()`**
+
+Ao associar parâmetros a uma consulta `prepare`, pode-se utilizar dois métodos com comportamentos distintos. o `bindValue()` ou o `bindParam()`, o primeiro vincula um valor fixo no momento da chamada, enquanto o segundo vincula uma variável por referência e só avalia o valor real quando a consultal é executada.
+
+**Exemplo `bindValue()`**: Associa o valor exato da variável naquele momento, é mais comum e seguro para 95% dos casos de uso.
+```php
+$id = 10;
+$stmt->bindValue(":id", $id, PDO::PARAM_INT);
+$id = 20; //não altera o valor que já foi passado no bindValue!
+$stmt->execute(); //executa com id = 10
+```
+
+**Exemplo `bindParam()`**: Associa a variável como uma referência de memória (`&`). O valor é lido no momento exato da chamada `execute`. Usar apenas em loops ou situações específicas que precisa alterar o valor repetidamente.
+```php
+$id = 10;
+$stmt->bindParam(":id", $id, PDO::PARAM_INT);
+$id = 20; //altera o valor de referência
+$stmt->execute(); //executa com id = 20
+```
+
+>obs: Tipagem Explícita com Constantes do PDO:
+>Para Garantir que o PostgreSQL interprete corretamente o tipo de dado, inform-se sempre a constante correspondente:
+> * `PDO::PARAM_INT`: Para chaves primárias, quantidades e inteiros.
+> * `PDO::PARAM_STR`: Para textos, strings, datas e números decimais (`NUMERIC`).
+> * `PDO::PARAM_BOOL`: Para valores booleanos (`true`/`false`).
+> * `PDO::PARAM_NULL`: Para passar valores nulos explícitos.
+
+#### O Padrão de Arquitetura DAO(DATA ACCESS OBJECT)
+
+Em aplicações profissionais, comando SQL nunca devem ser escritos diretamente dentro de arquivos de interface visual ( como páginas HTML ou controladoras de tela)
+
+Para separar a **lógica de apresentação** da **lógica de acesso a dados**, usa-se o padrão de projetos **DAO(DATA ACCESS OBJECT)**:
+
+```mermaid
+flowchart
+    A["Interface web/Controlador<br/>(index.php)"]
+    B["Classe DAO<br/>(LógicaDAO.php)"]
+    C["SGBD<br/>(banco_dados)"]
+
+    A --> |"Chama métodos:<br/>salvar(), listar(), excluir()" | B
+    B --> |"Executa Prepared Statement<br/>via PDO" | C
+
+```
