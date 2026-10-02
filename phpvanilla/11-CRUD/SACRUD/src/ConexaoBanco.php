@@ -1,18 +1,28 @@
 <?php
 declare(strict_types=1);
 
+/**
+ * Gerenciador de conexao unica com o PostgreSQL via PDO (Singleton).
+ */
 final class ConexaoBanco {
-
+    //atributo -> armazena o PDO
     private static ?PDO $instancia = null;
 
-    private function __construct() {}
+    //métodos
+    private function __construct() {} //construtor em classe tipo singleton são privados
 
+
+    //metodos de proteção
     private function __clone(): void {}
 
     public function __wakeup(): void {
         throw new \Exception("Desserializacao nao permitida.");
     }
 
+
+    /**
+     * Retorna a conexao ativa existente ou instancia uma nova sob demanda.
+     */
     public static function obterConexao(string $caminhoConfig): PDO {
         if (self::$instancia === null) {
             $config = self::carregarConfig($caminhoConfig);
@@ -21,6 +31,9 @@ final class ConexaoBanco {
         return self::$instancia;
     }
 
+    /**
+     * Le o arquivo INI com as credenciais do PostgreSQL.
+     */
     private static function carregarConfig(string $caminho): array {
         if (!file_exists($caminho)) {
             throw new \RuntimeException("Arquivo de configuracao ausente.");
@@ -32,10 +45,14 @@ final class ConexaoBanco {
         return $dados['database'];
     }
 
+    /**
+     * Instancia o objeto PDO com as flags de seguranca recomendadas.
+     */
     private static function criarConexao(array $cfg): PDO {
         $dsn = sprintf("%s:host=%s;port=%s;dbname=%s",
             $cfg['db_driver'], $cfg['db_host'], $cfg['db_port'], $cfg['db_name']);
 
+        //usar as flags do PDO
         $opcoes = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
