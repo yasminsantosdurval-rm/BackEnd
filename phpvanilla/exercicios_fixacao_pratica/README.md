@@ -48,3 +48,5 @@ Além disso, quando o incidente puder causar risco ou dano relevante, o controla
 
 ## ex03:
 ![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
