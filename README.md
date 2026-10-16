@@ -1708,8 +1708,8 @@ class ContaBancaria {
     private float $saldo;
 
     // Método Construtor
-    public function __construct(string $t, int $agencia, float $saldo){
-        $this->titular = t; //this->titualr refere-se ao atributo da classe
+    public function __construct(string $titular, int $agencia, float $saldo){
+        $this->titular = titular; //this->titualr refere-se ao atributo da classe
         $this->agencia = agencia; //this->titualr refere-se ao atributo da classe
         $this->saldo = saldo; //this->titualr refere-se ao atributo da classe
     }
@@ -1718,8 +1718,30 @@ class ContaBancaria {
     public function getSaldo(): float{
         return $this->saldo;
     }
-}
+} //fecha a classe
 
 //Instanciando dois objetos completamentes independentes
+$conta1 = new ContaBancaria("Carlos", 001, 100.00);
+$conta2 = new ContaBancaria("Douglas", 002, 500.00);
 
+echo $conta1->getSaldo(); // Exibir 100.00
+echo $conta2->getSaldo(); // Exibir 500.00
+```
+
+>[!OBD:]
+>**Alocação de Objetos na Memória**
+> No PHP, variáveis que armazenam objetos, usam um  **identificador/referência** para o endereço na memória. Quando você passa um objeto para uma função ou método, está passando a referência na memória sobre aquele objeto, o que torna o POO extremamente performático.
+
+#### **Os 4 Pilares da Orientação a Objetos**
+
+```mermaid
+quadrantChart
+    title Os 4 Pilares da Programação Orientada a Objetos
+    x-axis "Conceituação & Estrutura" --> "Comportamentos & Dinâmica"
+    y-axis "Nível Individual" --> "Nível Hierárquico"
+
+    "1. Abstração": [0.25,0.25]
+    "2. Encapsulamento": [0.25, 0.75]
+    "3. Herança": [0.75, 0.75]
+    "4. Polimosrfismo": [0.75, 0.25]
 ```

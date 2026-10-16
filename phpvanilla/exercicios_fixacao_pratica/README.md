@@ -44,3 +44,7 @@ Se um `UPDATE` for feito sem `WHERE`, o comando pode alterar **todos os registro
 Se acontecer um vazamento de dados por uma falha de segurança, a empresa pode sofrer consequências previstas na LGPD. Dependendo do caso, a ANPD pode aplicar **advertência, multa simples ou diária, publicização da infração, bloqueio ou eliminação de dados**, além de outras sanções previstas na lei. A multa simples pode chegar a **2% do faturamento**, limitada a **R$ 50 milhões por infração**.
 
 Além disso, quando o incidente puder causar risco ou dano relevante, o controlador deve comunicar a ANPD e os titulares afetados.
+
+
+## ex03:
+![alt text](image.png)
