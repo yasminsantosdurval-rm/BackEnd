@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use InvalidArgumentException; //biblioteca de Exception para invalid Arguments
-
 //Classe para Representar o titular ca conta bancaria
 
 final class Titular {
