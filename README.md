@@ -1488,7 +1488,7 @@ Para resolver esse problema sem obrigar o usuário a digitar o logine senha nova
 3. A cada nova página solicitada, o navegador apresenta automatiocamnet essa pulseira no cabeçalho da requisição
 4. O PHP l^o número da comanda/pulseira, localiza os dados do usuário aramazenado na memoria do servidor(`$_SESSION`) e reconhece quem é ele!
 
-**Situação com Artmazenamento de Cookie e SESSION**
+**Situação com Armazenamento de Cookie e SESSION**
 
 ```mermaid
 sequenceDiagram
@@ -1938,3 +1938,421 @@ flowchart TD
 
 >[!OBS]
 >`try/catch` é o mecanismo de captura de exceções do PHP. Ele permite que você trate erros de forma inteligente, mantendo a integridade do sistema e fornecendo feedback claro ao usuário.
+
+---
+
+### Semana 12 - Arquitetura MVC Artesanal
+
+**Tema:** Pradrão Arquitetural MVC(Model-View-Controller) em BackEnd. Gestão de Dependências Composer, Especificações de Autoloading PSR-4, Resolução Automática de NamesSpace, Padrão DrontController, Roteador HTTP Artesanal e Injeção de Dados em Views. 
+
+#### **O fim do Código Espaguete**
+
+Quando encontramos um padrão de código desastroso e caótico, sem arquiteturas modernas de Desenvolvimento, usamos o termo `Código Espaguete`.
+
+Exemplo de Código Espaguete:
+
+```php
+<!-- ARQUIVO LEGADO: produtos.php (O PESADELO DO CÓDIGO ESPAGUETE) -->
+<?php
+// 1. Múltiplos includes manuais frágeis
+require_once __DIR__ . '/../config/conexao.php';
+require_once __DIR__ . '/../classes/Produto.php';
+require_once __DIR__ . '/../classes/Sessao.php';
+require_once __DIR__ . '/../classes/Auditoria.php';
+
+// 2. Mistura de lógica de banco e processamento HTTP
+$pdo = Conexao::getInstancia();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nome = $_POST['nome'];
+    $stmt = $pdo->prepare("INSERT INTO produtos (nome) VALUES (?)");
+    $stmt->execute([$nome]);
+}
+$produtos = $pdo->query("SELECT * FROM produtos")->fetchAll();
+?>
+<!-- 3. HTML misturado com PHP procedural na mesma folha -->
+<html>
+<body>
+    <h1>Catálogo</h1>
+    <?php foreach($produtos as $p): ?>
+        <p><?= $p['nome'] ?></p>
+    <?php endforeach; ?>
+</body>
+</html>
+```
+
+**Os Problemas Críticos do Código Espaguete**
+
+1. *Acoplamento Máximo*: Se você mudar o layout visual, corre o risco de quebrar uma query SQL. Se alterar uma coluna do banco, precisa reescrever o arquivo vicual. 
+2. *Fragicilidade de Inclusões (`required_once`):* Se um arquivo for movido de pasta, todas as chamadas `required_once`quebram com erros fatais de arquivos não encontrados.
+3. *Exposição de Segurança*: Se os arquivos PHP estiverem na raiz acessível do servidor web, qualquer usuário malicioso pode tentar acessar scripts internos digitando `http://site.com/config/conexao.php`.
+
+```mermaid
+flowchart
+    subgraph Caótico ["Código Espaguete Tradicional (Desorganizado)"]
+            arq["produtos.php<br/> Consultas SQL Diretas<br/> HTML e Tags CSS<br/> Regras de Negócio<br/> 10x Require_once manuais"]
+    end
+
+    style Caótico fill: #fee2e2, stroke: #dc2626, stroke-width: 2px, color: #7f1d1d
+```
+
+#### **A Triade Model-View-Controller (MVC) no BackEnd
+
+O Padrão **MVC (Model-View-Controller)** é a arquitetura de software corporativa mais consagrada da hístoria da web. Seu Objetivo é separar as preocupações do sistema em **3 camadas bem definidas**:
+
+```mermaid
+flowchart TD
+
+    subgraph MVC ["Padrão Arquitetural MVC (Responsabilidade Única)"]
+        controller["Controller<br/>(Maestro do Fluxo)"]
+        model["Model<br/>(Regras de Negócio & Banco)"]
+        view["View<br/>(Apresentação Visual Limpa)"]
+
+        controller -->|"1. Pede dados"| model
+        model -->|"2. Devolve entidades"| controller
+        controller -->|"3. Injeta dados"| view
+    end
+
+    style controller fill:#e0e7ff,stroke:#4338ca,stroke-width:2px,color:#312e81
+    style model fill:#dcfce7,stroke:#15803d,stroke-width:2px,color:#14532d
+    style view fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#78350f
+```
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Cliente as Navegador do Usuário
+    participant FC as Front Controller (index.php)
+    participant Router as Roteador HTTP
+    participant Ctrl as ProdutoController
+    participant Model as Produto (Model)
+    participant BD as Banco de Dados (PostgreSQL)
+    participant View as View (listar.php)
+
+    Cliente->>FC: GET /produtos
+    FC->>Router: despachar("GET", "/produtos")
+    Router->>Ctrl: executar listar()
+    Ctrl->>Model: listarTodos()
+    Model->>BD: SELECT * FROM produtos...
+    BD-->>Model: Retorna registros relacionais
+    Model-->>Ctrl: Retorna array de entidades
+    Ctrl->>View: renderizar("produtos/listar", dados)
+    View-->>Cliente: Retorna HTML estruturado e sanitizado
+```
+
+1. **Model (Camada de Modelo de Negócio e Dados)**
+- **O que Faz**: Representa as entidade do mundo real e gerencia a lógica de dados, persistência e regras de negócio
+- **O que sabe**: Sabe como conectar ao banco de dados, executar Prepared Statement, validar se um preço é positivo (RN) e calcular totais de estoque(RN)
+- **O que NUNCA faz**: Nunca emite comando `echo`, nunca gera tag HTML e nunca lê dados da superglobal `$_POST` ou `$_GET`.
+
+2. **View (Camada de Visualização e Apresentação)**
+- **O que Faz**: Renderiza a interface gráfica do usuário(geralmente HTML, CSS, JSON).
+- **O que sabe**: Recebe variáveis simples enviadas pelo Controller e as formata visualmente, aplicando sanitizção ativa contra XSS(`htmlspecialchars`)
+- **O que NUNCA faz**: Nunca executa consultas SQL, nunca faz regras de negócios complexa e nunca redireciona requisições via `header()`
+
+1. **Controller (Camada de Controle e Orquestração)**
+- **O que Faz**: Atua como o maestro da aplicação. REcebe a requisição do usuário, valida as entradasm aciona a camada Model para obter ou persistir informações e seleciona a View correspondente para renderizar a resposta
+- **O que sabe**: Sabe qual Model chamar e qual View devolver.
+- **O que NUNCA faz**: Não deve conter regras contábeis complexas (elas pertencem ao Model) e não deve escrever HTML diretamente.
+
+#### **O Gerenciador Composer e o AutoLoad PSR-4**
+
+Imagine um projeto coroporativo moderno com mais de 300 classes. ter que escrever 300 linhas de `required_onde`em cada arquivo ternaria o desenvolvimento inviável. É aqui que entra o **Composer** e a especificação  **PSR-4**
+
+```mermaid
+flowchart LR
+    comp["Composer<br/>(composer.json)"] -->|"composer dump-autoload"| auto["vendor/autoload.php"]
+    
+    codigo["use App\\Models\\Produto;<br/>$p = new Produto();"] -->|"PHP intercepta a chamada"| auto
+    auto -->|"Mapeia 'App\\' para 'src/'"| disco["Carrega do disco:<br/>src/Models/Produto.php"]
+
+    style comp fill:#fed7aa,stroke:#ea580c,stroke-width:2px,color:#7c2d12
+    style auto fill:#bbf7d0,stroke:#16a34a,stroke-width:2px,color:#14532d
+    style disco fill:#e0e7ff,stroke:#4338ca,stroke-width:2px,color:#312e81
+```
+
+**O que é o Composer?**
+
+O **Composer** é o gerenciador de dependências oficial da linguagem PHP. Ele desempenha duas funções vitais:
+1. Baixar bibliotecas de terceiros a partir do repositório central Packagist (como bibliotecas de envio de e-mails, geradores de PDF e frameworks).
+2. **Gerar o Autoloader Automático:** O Composer lê as classes criadas por você no seu projeto e as disponibiliza automaticamente no código sem a necessidade de nenhum `require`.
+
+**As Especificações do PSR-4 (PHP Stadart Recommendation 4)**:
+
+A especificação internacional **PSR-4** dita que:
+> *O namespace de uma classe deve espelhar exatamente a estrutura de diretórios no disco físico onde o arquivo está gravado.*
+
+Exemplo prático:
+- Se declaramos o namespace: `namespace App\Controllers; class ProdutoController {}`
+- E configuramos no Composer que o prefixo `"App\\"` aponta para a pasta `"src/"`.
+- O PHP localizará fisicamente o arquivo em: `src/Controllers/ProdutoController.php`.
+
+**Como Configurar o composer.json**
+
+```json
+{
+    "name": "senai/supply-mvc",
+    "description": "Sistema de Gestão de Insumos Industriais",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
+```
+
+> [!IMPORTANT]
+> **Comando Mandatório de Regeneração:**  
+> Sempre que você criar o arquivo `composer.json` ou alterar a estrutura de namespaces, execute no terminal do VS Code:  
+> `composer dump-autoload -o`  
+> O parâmetro `-o` gera o mapa de classes otimizado para máxima performance.
+
+
+#### **O Padrão Front Controller e Roteamento HTTP**
+
+Em aplicações PHP procedurais antigas, a URL do navegador correspondia exatamente a um arquivo gravado no disco:
+- `http://site.com/contato.php` ➔ Carrega o arquivo `contato.php`.
+- `http://site.com/admin/relatorio.php` ➔ Carrega o arquivo `admin/relatorio.php`.
+
+Em arquiteturas corporativas modernas (incluindo **Laravel**, **Symfony** e **Spring Boot**), essa correspondência direta não existe mais. Em vez disso, utilizamos o **Padrão Front Controller**.
+
+```mermaid
+flowchart TD
+    req1["GET /"] --> fc["Ponto Único de Entrada:<br/>public/index.php"]
+    req2["GET /produtos"] --> fc
+    req3["POST /produtos/salvar"] --> fc
+
+    fc --> router["Roteador Artesanal<br/>(App\\Core\\Roteador)"]
+
+    router -->|"Combina Rota"| c1["HomeController::index()"]
+    router -->|"Combina Rota"| c2["ProdutoController::listar()"]
+    router -->|"Combina Rota"| c3["ProdutoController::salvar()"]
+    router -.->|"Não encontra"| c4["HTTP 404 Not Found"]
+
+    style fc fill:#fed7aa,stroke:#ea580c,stroke-width:2px,color:#7c2d12
+    style router fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+    style c4 fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+```
+
+**Por que isolar o diretório `public/`?**
+
+Por razões estritas de **Segurança da Informação**:
+1. O servidor web aponta sua raiz estritamente para a pasta `public/`.
+2. As pastas `src/`, `config/`, `vendor/` e os arquivos `.ini` e `.env` ficam **um nível acima da raiz pública**.
+3. Mesmo que um atacante tente digitar diretamente a URL de um arquivo sensível (ex.: `http://site.com/config/database.ini`), o servidor web bloqueia o acesso, pois o arquivo não reside na pasta pública.
+
+
+---
+
+### Semana 13 - Introdução ao Framework Laravel e Artisan CLI
+
+**Tema:** Módulo 3 - Framework Laravel, Evolução da Arquitetura MVC Artesanal para MVC do Ecossistema Laravel, Estrutura Enxuta, Mapeamento de Diretórios. Gestão Segura de Ambientes com `.env`, Chaves Criptografadas de aplicação, Ferramenta de Linha de Comando `Artisan CLI`, Ciclo de Vida de Requisição do Framework. 
+
+
+#### **O que é o Framework Laravel?**
+
+Criado em 2011 por Taylor Otwell, o **Laravel** é atualmente o framework mais popular e consolidade do ecossistema PHP. Ele é um **framework MVC Completo**, que oferece uma estrutura de desenvolvimento robusta, segura e escalável para aplicações web modernas e corporativas. Ele Adota o Princípio de **Convenção sobre Configuração** e Entrega uma série de recursos prontos para uso, incluindo:
+
+1. **Produtividade Imediata**: Estrutura padronizada onde todo desenvolvimento segue convenções claras, reduzindo a necessidade de configuração manual.
+2. **Segurança por Padrão(Security by Default)**: Proteção nativa e automática contra XSS, CSRF, SQL Injetion, manipulação indevida de cookies e ataques de força brute.
+3. **ORM Eloquent**: Uma ferramenta de mapeamento objeto-relacional (ORM) que simplifica a interação com banco de dados, permitindo consultas e manipulações de dados usando sintaxe PHP fluente.
+4. **Ferramenta de Linha de Comando (Artisan CLI)**: Automatiza a criação de classes, execução de migrações de banco, limpeza de cache e outras tarefas repetidas, aumento de produtividade no desenvolvimento.
+5. **Comunidade Global e Ecossistema Rico**: Milhares de pacotes prontos para autenticação robusta, mensageria, fila assincronas, geração de APIs restful, testes automatizados e muito mais. 
+
+Ao longo das últimas semanas, estudamos a estrutura de projetos em PHP puro. E agora, vamos migrar para o **Laravel**, abaixo uma tabela comparativa entre o MVC artesanal e o Laravel:
+
+Componente Arquitetural | No Seu MVC Artesanal (Semana 12) | No Framework Laravel (Semana 13+) | Vantagem Competitiva no Mercado |
+| :--- | :--- | :--- | :--- |
+| **Ponto Único de Entrada** | `public/index.php` | `public/index.php` | Mesma raiz segura: isola todo o código-fonte da web pública. |
+| **Autoload de Classes** | `composer.json` (PSR-4: `"App\\": "src/"`) | `composer.json` (PSR-4: `"App\\": "app/"`) | Padrão unificado internacional da PHP-FIG. |
+| **Mecanismo de Roteamento** | `App\Core\Roteador` com array interno | `routes/web.php` e `routes/console.php` | Roteamento declarativo com middlewares, parâmetros dinâmicos e grupos de rotas. |
+| **Camada de Controle** | `App\Controllers\ProdutoController` | `App\Http\Controllers\AtivoController` | Integração automática com Injeção de Dependências e validação de Form Requests. |
+| **Camada de Dados (Model)** | `App\Models\Produto` com PDO manual | `App\Models\Ativo` (*Eloquent ORM*) | Mapeamento Objeto-Relacional avançado com relacionamentos expressivos (`hasMany`, `belongsTo`). |
+| **Camada de Visualização** | Scripts PHP nativos com `extract()` | Motor de Templates **Blade** (`.blade.php`) | Sintaxe limpa, herança de layouts, componentes reutilizáveis e escape automático contra XSS. |
+| **Isolamento de Credenciais** | `config/database.ini` | Arquivo `.env` (Padrão 12-Factor App) | Paridade entre ambientes (local, homologação e nuvem) com segurança estrita. |
+
+>[!Observação]
+>Construir o MVC Artesanal na semana 12 foi como desmontar e criar a mão cada engrenagem, pistão e freio de um motor automotivo. Agora que você compreendeu como montar funciona, não precisa mais reinventar a roda em cada nova fase, você já assume a cabine do piloto de Fórmula 1 de última geração. 
+
+#### **Rotas Enxutas e Parametrizadas com Laravel 11**
+
+No **Lavarel 11**, lançado com foco em performance, e simplicidade, a arquitetura foi completamente desidratada e enxuta. Permitindo que o desenvolvedor foque mais na lógica de negócio e menos em configurações complexas. Abaixo, um exemplo de rotas simples e parametrizadas:
+
+```php
+use App\Http\Controllers\AtivoController;
+
+Route::get('/', [AtivoController::class, 'index'])->name('ativos.index');
+Route::get('/ativos/create', [AtivoController::class, 'create'])->name('ativos.create');
+Route::post('/ativos', [AtivoController::class, 'store'])->name('ativos.store');
+Route::get('/ativos/{ativo}/edit', [AtivoController::class, 'edit   '])->name('ativos.edit');
+Route::put('/ativos/{ativo}', [AtivoController::class, 'update'])->name('ativos.update');
+Route::delete('/ativos/{ativo}', [AtivoController::class, 'destroy'])->name ('ativos.destroy');
+``` 
+
+As 3 Grandes Mudanças Estruturais do Laravel 11:
+1. **O Novo Núcleo `bootstrap/app.php`:** Toda a configuração de rotas (`web`, `commands`), middlewares globais e tratamento centralizado de exceções agora é feita de forma fluida (*fluent API*) em um único arquivo.
+2. **Rotas Minimalistas por Padrão:** O arquivo `routes/web.php` já vem pronto para rotas de interface web. As rotas de API (`routes/api.php`) só são criadas quando o desenvolvedor decide ativá-las através do comando `php artisan install:api`.
+3. **Menos Boilerplate em Controllers e Models:** Classes base limpas, sem heranças desnecessárias de dezenas de traits que não estavam sendo utilizados.
+
+
+#### **3. O Mapeamento de Diretórios do Laravel**
+
+Ao criar uma nova aplicação Laravel, a estrutura de diretórios é organizada de forma a separar claramente as responsabilidades do sistema. Usando o Princípio de Responsabbilidade Única**.
+
+```text
+senai-asset-manager/
+├── app/                  <- O coração da sua lógica de negócios
+│   ├── Http/
+│   │   └── Controllers/  <- Seus Controllers residem aqui
+│   ├── Models/           <- Seus Modelos Eloquent residem aqui
+│   └── Providers/        <- Provedores de serviços da aplicação
+├── bootstrap/            <- Inicialização do framework
+│   ├── app.php           <- Ponto central de configuração de rotas e middlewares
+│   └── cache/            <- Caches de inicialização do sistema
+├── config/               <- Arquivos de configuração publicáveis (banco, sessão, etc.)
+├── database/             <- Engenharia de Banco de Dados
+│   ├── factories/        <- Fábricas de dados falsos para testes (Faker)
+│   ├── migrations/       <- Controle de versão do esquema do banco de dados
+│   └── seeders/          <- Scripts para popular tabelas com dados iniciais
+├── public/               <- A ÚNICA PASTA ACESSÍVEL PELO SERVIDOR WEB
+│   ├── css/              <- Folhas de estilo compiladas
+│   ├── js/               <- Scripts front-end
+│   ├── index.php         <- O Front Controller da aplicação
+│   └── robots.txt
+├── resources/            <- Recursos brutos da interface com o usuário
+│   ├── css/              <- Arquivos CSS pré-compilação (Tailwind)
+│   ├── js/               <- Arquivos JavaScript pré-compilação
+│   └── views/            <- Templates do motor de visualização Blade (.blade.php)
+├── routes/               <- Mapeamento de rotas do sistema
+│   ├── console.php       <- Comandos de terminal customizados baseados em Closure
+│   └── web.php           <- Rotas HTTP para navegadores (com cookies e sessões)
+├── storage/              <- Arquivos gerados em tempo de execução
+│   ├── app/              <- Uploads e arquivos gerados pelo sistema
+│   ├── framework/        <- Sessões de arquivo, views compiladas e caches
+│   └── logs/             <- Logs cronológicos de erro e auditoria (laravel.log)
+├── tests/                <- Testes automatizados unitários e de integração
+├── .env                  <- ARQUIVO CONFIDENCIAL de variáveis de ambiente
+├── .env.example          <- Modelo público de variáveis para a equipe
+├── .gitignore            <- Impede o vazamento de segredos para o Git
+├── artisan               <- O executável da CLI Artisan
+└── composer.json         <- Manifesto de dependências e autoload PSR-4
+```
+
+> [!Cuidado]
+> Apenas a pasta `public/` deve ser apontada pelo servidor web.
+> Nunca aponte o servidor web para a raiz do projeto! Se fizer isso, qualquer visitante poderá navegar até `http://seusite.com/.env/` e baixar todas as senahs do banco de dados e chaves de API da empresa.
+
+> [!Observação]
+> `.env` ou `database.ini`: são arquivos para armazenamento de informações/dados sensíveis da aplicação.
+> `.gitignore`: nesse arquivo são colocados os nomes dos arquivos e pastas que não devem ser versionados (não são exposoto no git e github).
+
+
+#### **4. Segurança no Ambiente de Desenvolvimento e Produção**
+
+Em Sistemas corporativos, uma aplicação passa por múltiplos ambientes ao longo do seu ciclo de desenvolvimento.
+
+- **Ambiente local**: Na máquina de trabalho do desenvolvedor, com exibição detalhada de erros e banco de dados local.
+- **Ambiente de Homologação**: Servidor de testes, onde a equipe de QA valida funcionalidades antes do lançamento.
+- **Ambiente de Produção**: Servidor público, onde a aplicação é acessada pelos usuários finais. Aqui, erros detalhados não devem ser exibidos para o público. `APP_DEBUG` deve ser `false` para não expor informações sensíveis.
+
+
+1. **O Padrão de Segurança `12-Factor`e o Arquivo `.env`**
+
+Em vez de alterar senhas dentro do código PHP a cada deploy, o Laravel utiliza o padrão internacional de isolar as variáveis que mudam de ambiente em um arquivo de texto simples chamado `.env` (Environments Variables).
+
+2. **A Chave de Segurança `APP_KEY`**.
+
+A `APP_KEY` é a sequencia criptografada aleatória de 32 bytes codificada em Base64 gerada automaticamente pelo Laravel, como padrão de segurança em qualquer aplicação.
+
+>[!Observação]
+> Se a `APP_KEY` estiver vazia, o Laravel recusará a execução exibindo um erro na tela *No Application encryption key has been specified*
+> Se ocorrer a troca da `APP_KEY` em um sistema em produção, todas as sessões ativas cairão e os dados cifrados  com a chave antiga se tornarão inválidos e irrecuperáveis.
+
+3. **O Papel do `.env.example`**
+
+Como o arquivo `.env`está listado no `.gitiognore` e nunca vai para o GitHub, como um colega de equipe sabe quais variáveis ele precisa configurar ao clonar o repositório?  Através do `.env.example`, ele serve como um template documentado contendo as mesma chaves do `.env`, porrém com valores fictícios ou vazios. 
+
+```mermaid
+flowchart TD
+    key["APP_KEY (32 bytes aleatórios)<br/>Guardada com exclusividade no .env"]
+    
+    key --> op1["Criptografia de Cookies de Sessão<br/>(Impede adulteração no navegador)"]
+    key --> op2["Criptografia de Senhas e Tokens<br/>(Algoritmo AES-256-CBC)"]
+    key --> op3["Assinatura de URLs Temporárias<br/>(Links de recuperação de senha seguros)"]
+
+    style key fill:#fecaca,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+    style op1 fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+    style op2 fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+    style op3 fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+```
+
+#### **5. Artisan CLI: O poder da Linha de Comando**
+
+O **Artisan CLI** é a interface de linha de comando (Command-Line-Interface) nativa do Laravel. Ele é executado a partir do arquivo executável `artisan` localizado na raiz do projeto.
+
+```bash
+php artisan [comando] [argumentos] [opções]
+```
+
+**Principais Comandos do Artisan CLI para a Rotina de Desenvolvimento**
+
+1. `php artisan serve`
+Inicializa o servidor HTTP local embutido de desenvolvimento, escutando por padrão em `http://127.0.0.1:8000`. É muito superior ao `php -S localhost:8000 -t public` tradicional porque já configura automaticamente o roteamento de assets estáticos e tratamento de reescrita de URL.
+- Para mudar a porta: `php artisan serve --port=8080`
+
+2. `php artisan key:generate`
+Gera uma chave criptográfica segura de 256 bits através de gerador de números pseudoaleatórios criptograficamente seguros e grava diretamente na variável `APP_KEY` do seu arquivo `.env`.
+
+3. `php artisan about`
+Introduzido nas versões modernas do Laravel, este comando faz uma varredura completa da saúde do ecossistema e imprime uma tabela no terminal com:
+- Versão do PHP e extensões carregadas.
+- Versão do Laravel instalada.
+- Status do ambiente (`local`, `production`).
+- Status do modo de depuração (`Debug Mode: ENABLED/DISABLED`).
+- Drivers ativos de Banco de Dados, Cache, Sessão e Filas.
+
+4. `php artisan list`
+Exibe o catálogo completo de comandos disponíveis na aplicação, agrupados por categorias (`make:`, `migrate:`, `route:`, `db:`, `config:`).
+
+5. `php artisan make:controller NomeDoController`
+Gera automaticamente um novo arquivo de classe Controller já configurado com o namespace correto (`App\Http\Controllers`), herança da classe base e declarações estritas, eliminando erros manuais de digitação.
+
+6. `php artisan make:model NomeDoModel`
+Gera automaticamente a classe de modelo Eloquent sob a pasta `App\Models`.
+
+7. `php artisan route:list`
+Gera uma tabela formatada no terminal listando todas as rotas registradas na aplicação, incluindo os verbos HTTP correspondentes (GET, POST), URIs, nomes de rota e a respectiva ação no Controller.
+
+8. `php artisan tinker`
+Abre um terminal interativo (*REPL - Read-Eval-Print Loop*) baseado no PsySH. Permite testar comandos PHP, instanciar models, consultar bancos de dados e verificar configurações diretamente pela linha de comando com toda a aplicação Laravel inicializada em memória!
+
+9. `php artisan migrate`
+Executa todas as migrações pendentes, criando ou alterando tabelas no banco de dados conforme definido nos arquivos de migração sob as pastas `database/migrations/`.
+
+```mermaid
+mindmap
+  root((Artisan CLI))
+    Diagnóstico e Servidor
+      php artisan serve
+      php artisan about
+      php artisan list
+    Geração de Código
+      php artisan make:controller
+      php artisan make:model
+      php artisan make:migration
+    Segurança e Manutenção
+      php artisan key:generate
+      php artisan cache:clear
+      php artisan optimize:clear
+    Exploração Interativa
+      php artisan tinker
+      php artisan route:list
+```
+
+---
+
+### Semana 14 - Rotas HTTP, Controllers de Recursos e Injeção de Dependências no LARAVEL
+
+**Tema:** Roteamento HTTP, Arquitetura Api Restful (GET, POST, PUT/PATCH, DELETE), Parâmetros de rotas(), Rotas Nomeadas name(), Controllers de Recursos(Parametrização do CRUD), Injeção de Dependências Via Service Container, Proteção Nativa Contra CRSF, Inspeção de rotas com `php artisan route:list`.
+
+#
