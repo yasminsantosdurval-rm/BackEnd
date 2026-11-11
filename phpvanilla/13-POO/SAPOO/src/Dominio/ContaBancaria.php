@@ -1,55 +1,89 @@
 <?php
 declare(strict_types=1);
 
-//Super Classe Abstrata de Conta Bancaria => Não permite Instanciamento
-
-abstract class ContaBancaria {
-    //atributo
+abstract class ContaBancaria
+{
     protected float $saldo;
+    protected array $historico = [];
+    protected array $notificadores = [];
 
-    //construtor da classe usando property promotion (Declaro os atributos dentro do construtor)
     public function __construct(
-        public readonly string $agencia, //atributo que recebera a agencia
-        public readonly string $numeroConta, //atributo que recebera o nº da conta
-        public readonly Titular $titular, //atributo que recebera os dados do titular (Classe Titular)
-        float $saldoInicial = 0.0 // atributo que recebera o saldoInicial da conta e passara para o saldo 
+        public readonly string $agencia,
+        public readonly string $numeroConta,
+        public readonly Titular $titular,
+        float $saldoInicial = 0.0
     ) {
-        if($saldoInicial < 0.0) { //lança uma excception caso valor do saldo inicial seja negativo
+        if ($saldoInicial < 0.0) {
             throw new ValorInvalidoException($saldoInicial);
         }
+
         $this->saldo = $saldoInicial;
     }
 
-    //método para depositar na conta (adicionar ao saldo) RN
-    public function depositar(float $valor):void {
-        if($valor <=0.0){ //se valor negativo lança uma exception
+    public function depositar(float $valor): void
+    {
+        if ($valor <= 0.0) {
             throw new ValorInvalidoException($valor);
         }
-        //se tudo der certo
-        //$this->saldo = $this->saldo + $valor;
+
         $this->saldo += $valor;
+
+        $this->registrarTransacao('Depósito', $valor);
+
+        $this->notificarTodos(
+            'Depósito realizado: R$ ' .
+            number_format($valor, 2, ',', '.')
+        );
     }
 
-    //métoda abstrato: cada subclasse define sua politica de saque 
-    abstract public function sacar(float $valor) : void;
+    abstract public function sacar(float $valor): void;
 
-    //Criar um método com polimorfismo
-    //Método de Transferência entre Contas
-    public function transferir (float $valor, ContaBancaria $contaDestino): void {
-        if($this === $contaDestino) { //se a conta que estpu transferidno for igual a conta de destino lança uma exceptiom
-            throw new ValorInvalidoException($valor);
+    public function transferir(
+        float $valor,
+        ContaBancaria $contaDestino
+    ): void {
+        if ($this === $contaDestino) {
+            throw new ContaException(
+                'Não é possível transferir para a mesma conta.'
+            );
         }
 
-        //Se tudo der certo
-        //realizar o saque da conta de origem
         $this->sacar($valor);
-        //depositar na conta de Destino
         $contaDestino->depositar($valor);
     }
 
-    //consulta o saldo (getter)
-    public function getSaldo():float{
+    public function getSaldo(): float
+    {
         return $this->saldo;
     }
-}
 
+    public function adicionarNotificador(
+        NotificadorInterface $notificador
+    ): void {
+        $this->notificadores[] = $notificador;
+    }
+
+    protected function registrarTransacao(
+        string $tipo,
+        float $valor
+    ): void {
+        $this->historico[] = new Transacao(
+            $tipo,
+            $valor,
+            date('d/m/Y H:i:s'),
+            true
+        );
+    }
+
+    protected function notificarTodos(string $mensagem): void
+    {
+        foreach ($this->notificadores as $notificador) {
+            $notificador->notificar($this->titular, $mensagem);
+        }
+    }
+
+    public function getExtrato(): array
+    {
+        return $this->historico;
+    }
+}
